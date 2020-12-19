@@ -20,7 +20,7 @@ namespace SpaceInvaders2020
         {
             InitializeComponent();
             InitializeGame();
-            InitializeMainTimer()
+            InitializeMainTimer();
         }
 
         private void InitializeGame()
