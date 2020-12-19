@@ -13,10 +13,14 @@ namespace SpaceInvaders2020
     public partial class Game : Form
     {
         private Spaceship spaceship = null;
+        private List<Enemy> enemies = new List<Enemy>();
+        private Timer mainTimer = null;
+
         public Game()
         {
             InitializeComponent();
             InitializeGame();
+            InitializeMainTimer()
         }
 
         private void InitializeGame()
@@ -24,6 +28,7 @@ namespace SpaceInvaders2020
             this.KeyDown += Game_KeyDown;
             this.BackColor = Color.Black;
             AddSpaceshipToGame();
+            AddEnemyToGame(3, 8);
         }
 
         private void AddSpaceshipToGame()
@@ -32,27 +37,70 @@ namespace SpaceInvaders2020
             spaceship.FireCooldown = 450;
             this.Controls.Add(spaceship);
             spaceship.Left = 150;
-            spaceship.Top = ClientRectangle.Height - spaceship.Height;    
+            spaceship.Top = ClientRectangle.Height - spaceship.Height;
         }
 
+        private void AddEnemyToGame(int rows, int columns)
+        {
+            Enemy enemy = null;
+
+            for (int rowCounter = 0; rowCounter < rows; rowCounter++)
+            {
+                for (int colCounter = 0; colCounter < columns; colCounter++)
+                {
+                    enemy = new Enemy();
+                    enemy.Left = 20 + 60 * colCounter;
+                    enemy.Top = 20 + 60 * rowCounter;
+                    this.Controls.Add(enemy);
+                    enemies.Add(enemy);
+                }
+            }
+        }
 
         private void Game_KeyDown(object sender, KeyEventArgs e)
         {
-            if(e.KeyCode == Keys.Space)
+            if (e.KeyCode == Keys.Space)
             {
                 spaceship.Fire();
             }
-            else if(e.KeyCode == Keys.A)
+            else if (e.KeyCode == Keys.A)
             {
-                spaceship.HorVelocity = -2;
+                spaceship.MoveLeft();
             }
-            else if(e.KeyCode == Keys.D)
+            else if (e.KeyCode == Keys.D)
             {
-                spaceship.HorVelocity = 2;
+                spaceship.MoveRight();
             }
-            else if(e.KeyCode == Keys.S)
+            else if (e.KeyCode == Keys.S)
             {
-                spaceship.HorVelocity = 0;
+                spaceship.MoveStop();
+            }
+        }
+
+        private void InitializeMainTimer()
+        {
+            mainTimer = new Timer();
+            mainTimer.Interval = 10;
+            mainTimer.Tick += MainTimer_Tick;
+            mainTimer.Start();
+        }
+        private void MainTimer_Tick(object sender, EventArgs e)
+        {
+            CheckBulletEnemyCollision();
+        }
+
+        private void CheckBulletEnemyCollision()
+        {
+            foreach (var bullet in spaceship.bullets)
+            {
+                foreach (var enemy in enemies)
+                {
+                    if (bullet.Bounds.IntersectsWith(enemy.Bounds))
+                    {
+                        enemy.Dispose();
+                        bullet.Dispose();
+                    }
+                }
             }
         }
     }
